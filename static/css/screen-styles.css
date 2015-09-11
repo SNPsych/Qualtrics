@@ -1,0 +1,99 @@
+
+/************** Grids **************/
+:root { overflow-y:scroll; }
+html	{ background:#ffffff; }
+body	{ background:#ffffff url(../images/body-bg.gif) repeat-x left top; }
+
+#custom-doc { width:1015px; margin:auto; text-align:left; }
+/************** Fonts **************/
+h1 { color: #0074c1; font-size:182%; margin:10px 0px; font-weight:normal; padding:0px; padding-left:10px;}
+h2 { color: #0074c1; font-weight:bold; font-size:110%; }
+h3	{  }
+h4	{  }
+
+a:hover {color:#0076bf; text-decoration:none}
+a { color: #444; text-decoration: none}
+/************** Header **************/
+#header { }
+#header .logo	{ float:left; margin:10px 0px 0px 2px; }
+#header .floatleft { float:left;}
+#header .box { float: right; margin:8px 0px 0px 0px; width:375px; }
+#header .box .width { float:right}
+
+#breadcrumbs {padding: 5px 0 0px 12px; margin:8px 5px 0 0; color:#6b6b6b; font-size:93%; width: 70%}
+#breadcrumbs a	{ color:#6b6b6b; }
+#breadcrumbs a:hover	{ color:#0076bf; }
+
+.boxMenu {float:right; margin-top:25px; color:#666; font-weight:bold;}
+.boxMenu ul li {display: inline; padding:8px 0px; color:#666;}
+.boxMenu ul li a {color:#666;}
+.boxMenu ul li a:hover {color:#0076bf;}
+.boxMenu ul li.noPad {padding-right:0;}
+
+.searchTextBox	{ padding:2px 0px 2px 1px; margin:0px; border:1px solid #CCCCCC; display:inline; border-right:none; font-size:93%; width:130px; }
+.searchButton	{ border:none; margin:0px; padding:0px; width:22px; height:21px; }
+/************** Template **************/
+#bd	{ }
+
+.contentTop { background: url(../images/content-bg-top.jpg) no-repeat; padding:8px 0px 0px;}
+.contentBottom { background: url(../images/content-bg-bottom.jpg) no-repeat; height:8px;}
+
+#mainContent {
+    width: 1013px;
+    border: solid 1px #C0C7D5;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding-bottom: 10px;
+    background:#ffffff;
+
+    /** border-left:1px #ccc solid; border-right:1px #ccc solid; background:#ffffff; float:left; width: 1013px; padding-bottom:10px; **/
+}
+.curveBottom	{ background:url(../images/main-curve-bottom.png) no-repeat left top; padding:6px 0px 0px; margin-bottom:10px;}
+
+/* Form Testing*/
+form input, form textarea { border: 1px solid #ccc; vertical-align:middle; color:#666 }
+form img { vertical-align:top; padding: 3px }
+.select { position: absolute; width: 158px; height: 21px; padding: 0 24px 0 8px; color: #666; font: 80%/21px arial,sans-serif; background:url(../images/select.gif) no-repeat; overflow: hidden; }
+
+/*Opera Fix*/
+body:before {content:""; height:100%; float:left; width:0; margin-top:-32767px;/}
+/************** Controls **************/
+.readMore	{ display:block; float:left; background:url(../images/read-more-arrow.gif) no-repeat right center; padding:0px 15px 0px 0px; margin:6px 0 0 10px; color:#0072bc}
+.readMore:hover	{}
+
+.homeLinksList	{ float:left; padding:0px 14px 0; margin-top:10px; }
+.homeLinksList h2	{ margin:5px 0px 15px; color:#666666; font-size:130%; font-weight:normal; }
+.homeLinksList ul	{ margin:-8px 0 0 15px; }
+.homeLinksList ul li	{ list-style-image:url(../images/link-arrow.gif); margin:5px 0 ; }
+.homeLinksList li a	{ text-decoration:none }
+.homeLinksList a:hover	{ color: #0076bf}
+
+/************** Footer **************/
+.footerCurveTop	{ background:url(../images/footer-bg-top.png) no-repeat left bottom; padding:9px 0px 0px; margin:10px 0px 0px; *margin:0px; }
+#ft	{  }
+
+/* Grey Menu Bottom*/
+#largeFooterMenu { background:#ebebeb; padding:0px 9px 9px; border-left:1px solid #d7d7d7; border-right:1px solid #d7d7d7; }
+#largeFooterMenu .floatl h4 { font-size:93%; margin:0px; padding:0 0 5px 0; color:#666; }
+#largeFooterMenu .floatl {float:left; padding:6px; color:#333; width:152px;  }
+#largeFooterMenu .floatl ul { margin:0px 0px 0px 15px; padding:0}
+#largeFooterMenu .floatl ul li { list-style-image:url(../images/grey-arrow.gif); list-style-position:outside; line-height:12px; padding:0px 0px 8px; }
+#largeFooterMenu .floatl ul li a {text-decoration:none; color:#666; font-size:85%; } 
+#largeFooterMenu .floatl ul li a:hover {color: #0076bf} 
+.largeFooterMenuBottom	{ background:url(../images/footer-bg-bottom.png)  no-repeat left bottom; padding:9px 0px 0px 0px; }
+
+#footer {padding: 5px 5px; border-top:5px solid #009BCB; width: 1007px; margin:0 auto; text-align:left; color: #666; clear:both; } 
+#footer p {margin: 0; padding: 5px; }
+
+#footer a {color:#666; text-decoration:underline } 
+#footer a:hover {color:#666; text-decoration:underline}
+#footer a:visited {color:#666; text-decoration:underline}
+
+/************** Other **************/
+.cl	{ clear:both; }
+.clearfix:after {content:"."; display:block; height:0; clear:both; visibility:hidden;}
+.clearfix {display:inline-block;}/* Hide from IE Mac \*/
+.clearfix {display:block;}/* End hide from IE Mac */
+
+#noscriptCover { width:572px; height:30px; position:absolute; left:400px; top:310px; z-index:2000; background:#0186b1;  }

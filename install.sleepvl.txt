@@ -1,0 +1,10 @@
+# Run django unit testing with with Nose and Coverage
+# install the test runner Nose and Coverage package:
+   pip install nose
+   pip install django-nose
+   pip install coverage
+# How to configure the testing runner and coverage, please see tests/settings.py file
+
+# run the django unit test, it will create the testing reporter and coverage reporting. which is under tests/reporter directory
+
+  python manage.py test
