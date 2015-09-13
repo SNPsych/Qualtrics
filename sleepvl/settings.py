@@ -26,7 +26,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -121,6 +121,8 @@ SURVEY_OUTPUT_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
 SURVEY_FILE_PREFIX = 'mon'
 
 # Static files (CSS, JavaScript, Images)
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..', 'static'))
+
 STATIC_URL = '/static/'
 
 STATIC_PATH = os.path.join(BASE_DIR, 'static')
