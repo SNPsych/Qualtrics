@@ -1,3 +1,62 @@
+Here we assume the user is ec2-user in CentOs
+
+How to setup python3.4.2
+
+#. Update virtual machine and install development tools
+   sudo yum update
+   sudo yum groupinstall "Development tools"
+   sudo yum install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
+   sudo vim /etc/ld.so.conf
+       append /usr/local/lib
+
+# Install Python 3.4
+   wget https://www.python.org/ftp/python/3.4.2/Python-3.4.2.tgz
+        gunzip Python-3.4.2.tgz
+        tar -xf Python-3.4.2.tar
+        cd Python-3.4.2
+        ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+        make
+        sudo make altinstall
+
+# pip3.4 will be installed by default starting python 3.4
+
+# Install virtual environment
+   /usr/local/bin/pip3.4 install virtualenv
+
+# Install virtualenvwrapper
+   /usr/local/bin/pip3.4 install virtualenvwrapper
+
+# add path and exports in ~/.bash_profile
+   export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3.4
+   source /usr/local/bin/virtualenvwrapper.sh
+   source ~/.bash_profile
+
+# PostgreSQL dependency install
+   sudo yum install postgresql-devel
+
+# Create Python virtual environment
+    mkdir ~/pyenv
+    cd ~/pyenv
+    virtualenv .
+    # it will create python3.4.2 env:
+    1. bin
+    2. include
+    3. lib
+    4. man
+# activate python virtualenv:
+    source ~/pyenv/bin/activate
+# deactivate python virtualenv:
+    deactivate
+
+# Install project dependencies:
+    source ~/pyenv/bin/activate
+    cd sleepvl
+
+    pip install -r requirements.txt
+
+
+
+How to testing
 # Run django unit testing with with Nose and Coverage
 # install the test runner Nose and Coverage package:
    pip install nose
@@ -8,3 +67,107 @@
 # run the django unit test, it will create the testing reporter and coverage reporting. which is under tests/reporter directory
 
   python manage.py test
+
+############################### Production setting #############################
+Apache2, Django Using mod_wsgi daemon mode
+
+# Install apache httpd
+yum install httpd* mod_*
+
+# enable httpd service in the default run level
+chkconfig add httpd
+
+# Modify the authz_ldap.conf
+
+#
+# mod_authz_ldap can be used to implement access control and
+# authenticate users against an LDAP server.
+#
+# /etc/httpd/conf.d/authz_ldap.conf
+
+LoadModule authz_ldap_module modules/mod_authz_ldap.so
+
+Alias /survey /srv/survey
+
+
+<Location /survey>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "SleepVL Survey Data Portal"
+        AuthBasicProvider ldap
+        AuthzLDAPAuthoritative on
+        AuthLDAPURL "ldap://directory.monash.edu:389/o=Monash University,c=AU?uid?sub?(objectClass=*)"
+        #AuthLDAPBindDN "o=Monash University,c=AU"
+        Require ldap-user xiyu sbarney beib
+        Require valid-user
+</Location>
+
+
+# Remove and re-install mod_wsgi
+
+yum remove mod_wsgi
+
+# re-install mod-wsgi
+#Note : The below is for Production setup,
+# - for development setup use mod_wsgi express setup in https://github.com/GrahamDumpleton/mod_wsgi
+# Make sure python is installed and you are in the correct virtual environment for Python version required
+# Download : git clone https://github.com/GrahamDumpleton/mod_wsgi
+#configure, compile and install  :
+       source ~/pyenv/bin/activate
+
+       cd mod_wsgi
+       ./configure
+       make
+       sudo make install
+
+
+#Cannot load /etc/httpd/modules/mod_wsgi.so into server: libpython3.4m.so.1.0: cannot open shared object file: No such file or directory
+   - Make Sure  /etc/ld.so.conf has entry for /usr/local/lib    (not: append /usr/local/lib)
+   - run ldconfig as root
+
+
+#/etc/httpd/conf.d/wsgi.conf
+
+LoadModule wsgi_module modules/mod_wsgi.so
+
+Alias /media /home/ec2-user/sleepvl_demo/static
+Alias /static /home/ec2-user/sleepvl_demo/static
+
+<Directory /static>
+        Order allow,deny
+        Allow from all
+</Directory>
+
+        WSGIScriptAlias / /home/ec2-user/sleepvl_demo/sleepvl/sleepvl/wsgi.py
+        #WSGIPythonPath /home/ec2-user/sleepvl_demo/sleepvl/:/home/ec2-user/sleepvl_demo/pyenv/lib/python3.4/site-packages
+        WSGIDaemonProcess sleepvl user=ec2-user group=ec2-user processes=5 python-path=/home/ec2-user/sleepvl_demo/pyenv:/home/ec2-user/sleepvl_demo/pyenv/lib/python3.4/site-packages:/home/ec2-user/sleepvl_demo/pyenv/lib/python3.4 threads=1
+        WSGIProcessGroup sleepvl
+<Directory /home/ec2-user/sleepvl_demo/sleepvl>
+      Header set Access-Control-Allow-Origin "*"
+      <Files wsgi.py>
+       Order allow,deny
+       Allow from all
+      </Files>
+</Directory>
+
+
+#/etc/httpd/conf/httpd.conf
+
+
+Include conf.d/authz_ldap.conf
+Include conf.d/wsgi.conf
+
+...
+
+User ec2-user
+
+# Make sure /var/log/httpd directory can be access by ec2-user. the WSGIDaemonProcess will create a proccess under
+# /var/log/httpd -- wsgi.17881.0.1.sock
+
+
+
+
+
+
+
+

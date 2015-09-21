@@ -70,14 +70,24 @@ def fill_for_rank(x):
     return x
 
 
+def check_for_attempt(x):
+    if x == 'Yes':
+        x = 1
+    else:
+        x = 0
+    return x
+
+
 def process_smed(x):
     smed = x['SMED']
+
     if smed == 'Yes':
         smed = 1
         # smed1 = x['SMED1'] don't need to change as SMED1 already fillna with .E
         # smed2 = x['SMED2'] don't need to change as SMED2 already fillna with .E
         # smed3 = x['SMED3'] don't need to change as SMED3 already fillna with .E
         smed1t = x['SMED1T_HH'] + ":" + x['SMED1T_MM']
+
         if smed1t.find('NA:') != -1:
             x['SMED1T'] = BLANK_E
         else:
@@ -117,53 +127,97 @@ def reduce_one_day_ymdstr(x):
     return (an_date + timedelta(days=-1)).strftime('%Y-%m-%d')
 
 
-def process_calculated(x):
-    current_date_str = x['Date']
-    bt_time_str = x['BT']
-    lo_time_str = x['LO']
-    wt_time_str = x['WT']
-    rt_time_str = x['RT']
-    x['BT'] = current_date_str + ' ' + bt_time_str
-    x['LO'] = current_date_str + ' ' + lo_time_str
-    x['WT'] = current_date_str + ' ' + wt_time_str
-    x['RT'] = current_date_str + ' ' + rt_time_str
+def process_awaken(x):
+    attempt = x['ATTEMPT']
+    if attempt:
+        x['BT'] = fill_for_hhmm(x['BT'])
+        x['LO'] = fill_for_hhmm(x['LO'])
+        x['WT'] = fill_for_hhmm(x['WT'])
+        x['RT'] = fill_for_hhmm(x['RT'])
+        current_date_str = x['Date']
+        bt_time_str = x['BT']
+        lo_time_str = x['LO']
+        wt_time_str = x['WT']
+        rt_time_str = x['RT']
+        bt_datetime_str = current_date_str + ' ' + bt_time_str
+        lo_datetime_str = current_date_str + ' ' + lo_time_str
+        wt_datetime_str = current_date_str + ' ' + wt_time_str
+        rt_datetime_str = current_date_str + ' ' + rt_time_str
 
-    # calculate the TIB first
-    if x['BT'].find(BLANK_E) != -1 or x['RT'].find(BLANK_E) != -1:
-        x['TIB'] = BLANK_B
-    else:
-        bt_time = datetime.strptime(x['BT'], '%Y-%m-%d %H:%M')
-        rt_time = datetime.strptime(x['RT'], '%Y-%m-%d %H:%M')
+        # calculate the TIB first
+        if bt_datetime_str.find(BLANK_E) != -1 or rt_datetime_str.find(BLANK_E) != -1:
+            x['TIB'] = BLANK_B
+        else:
+            bt_time = datetime.strptime(bt_datetime_str, '%Y-%m-%d %H:%M')
+            rt_time = datetime.strptime(rt_datetime_str, '%Y-%m-%d %H:%M')
 
-        if rt_time < bt_time:
-            rt_time = rt_time + timedelta(days=1)
-        x['TIB'] = '{0:.2f}'.format((rt_time - bt_time).total_seconds() / 60)
+            if rt_time < bt_time:
+                rt_time = rt_time + timedelta(days=1)
+            x['TIB'] = '{0:.2f}'.format((rt_time - bt_time).total_seconds() / 60)
 
-    # calculate SE1 and SE2
-    # if TIB is .B or TIB is zero. just set SE1 = .B
-    if x['TIB'] == BLANK_B or float(x['TIB']) == 0:
-        x['SE1'] = BLANK_B
-        x['SE2'] = BLANK_B
-    else:
-        x['SE1'] = '{0:.2f}'.format(float(x['TST']) / float(x['TIB']))
-        if x['LO'].find(BLANK_E) != -1 or x['WT'].find(BLANK_E) != -1:
+        # calculate SE1 and SE2
+        # if TIB is .B or TIB is zero. just set SE1 = .B
+        if x['TIB'] == BLANK_B or float(x['TIB']) == 0:
+            x['SE1'] = BLANK_B
             x['SE2'] = BLANK_B
         else:
-            bt_time = datetime.strptime(x['BT'], '%Y-%m-%d %H:%M')
-            lo_time = datetime.strptime(x['LO'], '%Y-%m-%d %H:%M')
-            rt_time = datetime.strptime(x['RT'], '%Y-%m-%d %H:%M')
-            wt_time = datetime.strptime(x['WT'], '%Y-%m-%d %H:%M')
+            x['SE1'] = '{0:.2f}'.format(float(x['TST']) / float(x['TIB']))
+            if lo_datetime_str.find(BLANK_E) != -1 or wt_datetime_str.find(BLANK_E) != -1:
+                x['SE2'] = BLANK_B
+            else:
+                bt_time = datetime.strptime(bt_datetime_str, '%Y-%m-%d %H:%M')
+                lo_time = datetime.strptime(lo_datetime_str, '%Y-%m-%d %H:%M')
+                rt_time = datetime.strptime(rt_datetime_str, '%Y-%m-%d %H:%M')
+                wt_time = datetime.strptime(wt_datetime_str, '%Y-%m-%d %H:%M')
 
-            if lo_time < bt_time:
-                lo_time = lo_time + timedelta(days=1)
-            if rt_time < wt_time:
-                rt_time = rt_time + timedelta(days=1)
-            lo_bt = (lo_time - bt_time).total_seconds() / 60
-            rt_wt = (rt_time - wt_time).total_seconds() / 60
-            sol = float(x['SOL'])
-            wasot = float(x['WASOT'])
-            tib = float(x['TIB'])
-            x['SE2'] = '{0:.2f}'.format((tib - (lo_bt + rt_wt + sol + wasot)) / tib)
+                if lo_time < bt_time:
+                    lo_time = lo_time + timedelta(days=1)
+                if rt_time < wt_time:
+                    rt_time = rt_time + timedelta(days=1)
+
+                lo_bt = (lo_time - bt_time).total_seconds() / 60
+                rt_wt = (rt_time - wt_time).total_seconds() / 60
+
+                sol = float(x['SOL'])
+                wasot = float(x['WASOT'])
+                tib = float(x['TIB'])
+                # [TIB - (( LO-BT )+( RT - WT ) + SOL + WASOT ) ]/TIB
+                x['SE2'] = '{0:.2f}'.format((tib - (lo_bt + rt_wt + sol + wasot)) / tib)
+                # print('-------- SE2 : [{} - ({} + {} + {} + {})] / {} = {}'.format(tib, lo_bt, rt_wt, sol, wasot, tib, x['SE2']))
+
+        # parse the EA
+        ea = x['EA']
+        if ea == 'Yes':
+            x['EA'] = 1;
+        elif ea == 'No':
+            x['EA'] = 0
+        else:
+            x['EA'] = BLANK_E
+        # adjust the EA for old record, if EAT is not 0, then for any blank EA should be 1
+        eat = x['EAT']
+        if eat != 0:
+            if x['EA'] == BLANK_E:
+                x['EA'] = 1
+        # finally we parse the EAT
+        if x['EA'] == 0:
+            x['EAT'] = BLANK_B
+    else:
+        x['BT'] = BLANK_B
+        x['LO'] = BLANK_B
+        x['WT'] = BLANK_B
+        x['RT'] = BLANK_B
+        x['SOL'] = BLANK_B
+        x['SNZ'] = BLANK_B
+        x['TST'] = BLANK_B
+        x['WASON'] = BLANK_B
+        x['WASOT'] = BLANK_B
+        x['EA'] = BLANK_B
+        x['EAT'] = BLANK_B
+        x['SQ'] = BLANK_B
+        x['REST'] = BLANK_B
+        x['TIB'] = BLANK_B
+        x['SE1'] = BLANK_B
+        x['SE2'] = BLANK_B
     return x
 
 
@@ -178,11 +232,15 @@ class SurveyParser(object):
         # Read the csv file, and skip the first row as it's a long string label name
         survey_data = pd.read_csv(self.in_filename)[1:]
 
+        bb_survey_flags = ['2', '<strong>B. I want to record my experiences during the day today (please complete before going to bed).</strong>']
         # Before sleep survey data
-        bb_survey = survey_data.loc[survey_data['QID20'] == 'Before bed']
+        bb_survey = survey_data.loc[
+            survey_data['QID20'] != '<strong>A. I want to record my sleep last night (please complete upon awakening).</strong>']
+
 
         # Upon awakening survey data
-        ab_survey = survey_data.loc[survey_data['QID20'] != 'Before bed']
+        ab_survey = survey_data.loc[
+            survey_data['QID20'] == '<strong>A. I want to record my sleep last night (please complete upon awakening).</strong>']
 
         # Define a before sleep DataFrame
         bb_df = DataFrame()
@@ -191,7 +249,7 @@ class SurveyParser(object):
         bb_df['Day'] = bb_survey['V8'].apply(find_weekday_ymdhms)
         # Create empty submission times first, fill it later
         bb_df['MULT'] = ''
-        bb_df['NAPN'] = bb_survey['QID11#3_1_1_TEXT'].fillna(BLANK_E)
+        bb_df['NAPN'] = bb_survey['QID27'].fillna(BLANK_E)
         bb_df['NAPT'] = bb_survey['QID11#2_1'].fillna(0).apply(hour_to_mins) + bb_survey['QID11#1_1'].fillna(0).apply(str_to_int)
         bb_df['ALN'] = bb_survey['QID15#3_1_1_TEXT'].fillna(BLANK_E)
 
@@ -229,8 +287,8 @@ class SurveyParser(object):
         bb_df['SMED2T'] = smed_df['SMED2T']
         bb_df['SMED3'] = smed_df['SMED3']
         bb_df['SMED3T'] = smed_df['SMED3T']
-        bb_df['NOTE'] = bb_survey['QID19'].fillna(BLANK_E)
-
+        bb_df['NOTEBB'] = bb_survey['QID19'].fillna(BLANK_E)
+        bb_df['ATTEMPT'] = ''
         bb_df['BT'] = ''
         bb_df['LO'] = ''
         bb_df['WT'] = ''
@@ -244,11 +302,14 @@ class SurveyParser(object):
         bb_df['EAT'] = ''
         bb_df['SQ'] = ''
         bb_df['REST'] = ''
+        bb_df['NOTEWU'] = ''
         bb_df['TIB'] = ''
         bb_df['SE1'] = ''
         bb_df['SE2'] = ''
         # process MULT
         bb_df['MULT'] = self.process_mult(bb_df)
+        # test code
+        # bb_df.to_csv('before_bed_survey.csv', index=False)
         # End of before sleep
 
         # Start for Upon awakening
@@ -271,44 +332,52 @@ class SurveyParser(object):
         ab_df['SMED2T'] = ''
         ab_df['SMED3'] = ''
         ab_df['SMED3T'] = ''
-        ab_df['NOTE'] = ''
+        ab_df['NOTEBB'] = ''
 
-        bt_series = ab_survey['QID2#2_1'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_1'].fillna(MM_ZERO)
-        ab_df['BT'] = bt_series.apply(fill_for_hhmm)
+        tmp_ab_df = DataFrame()
+        tmp_ab_df['Date'] = ab_df['Date']
+        tmp_ab_df['ATTEMPT'] = ab_survey['QID24'].fillna('Yes').apply(check_for_attempt)
+        tmp_ab_df['BT'] = ab_survey['QID2#2_1'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_1'].fillna(MM_ZERO)
+        tmp_ab_df['LO'] = ab_survey['QID2#2_2'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_2'].fillna(MM_ZERO)
+        tmp_ab_df['WT'] = ab_survey['QID2#2_3'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_3'].fillna(MM_ZERO)
+        tmp_ab_df['RT'] = ab_survey['QID2#2_4'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_4'].fillna(MM_ZERO)
+        tmp_ab_df['SOL'] = ab_survey['QID3#2_1'].fillna(0).apply(hour_to_mins) + ab_survey['QID3#1_1'].fillna(0).apply(str_to_int)
+        tmp_ab_df['SNZ'] = ab_survey['QID3#2_2'].fillna(0).apply(hour_to_mins) + ab_survey['QID3#1_2'].fillna(0).apply(str_to_int)
+        tmp_ab_df['TST'] = ab_survey['QID3#2_3'].fillna(0).apply(hour_to_mins) + ab_survey['QID3#1_3'].fillna(0).apply(str_to_int)
+        tmp_ab_df['WASON'] = ab_survey['QID6#3_1_1_TEXT'].fillna(BLANK_E)
+        tmp_ab_df['WASOT'] = ab_survey['QID6#2_1'].fillna(0).apply(hour_to_mins) + ab_survey['QID6#1_1'].fillna(0).apply(str_to_int)
 
-        lo_series = ab_survey['QID2#2_2'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_2'].fillna(MM_ZERO)
-        ab_df['LO'] = lo_series.apply(fill_for_hhmm)
+        tmp_ab_df['EA'] = ab_survey['QID26'].fillna(BLANK_E)
 
-        wt_series = ab_survey['QID2#2_3'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_3'].fillna(MM_ZERO)
-        ab_df['WT'] = wt_series.apply(fill_for_hhmm)
+        tmp_ab_df['EAT'] = ab_survey['QID7#2_1'].fillna(0).apply(hour_to_mins) + ab_survey['QID7#1_1'].fillna(0).apply(str_to_int)
 
-        rt_series = ab_survey['QID2#2_4'].fillna(BLANK_NA) + ":" + ab_survey['QID2#1_4'].fillna(MM_ZERO)
-        ab_df['RT'] = rt_series.apply(fill_for_hhmm)
+        tmp_ab_df['SQ'] = ab_survey['QID5'].apply(fill_for_rank)
+        tmp_ab_df['REST'] = ab_survey['QID8'].apply(fill_for_rank)
 
-        ab_df['SOL'] = ab_survey['QID3#2_1'].fillna(0).apply(hour_to_mins) + ab_survey['QID3#1_1'].fillna(0).apply(str_to_int)
-        ab_df['SNZ'] = ab_survey['QID3#2_2'].fillna(0).apply(hour_to_mins) + ab_survey['QID3#1_2'].fillna(0).apply(str_to_int)
-        ab_df['TST'] = ab_survey['QID3#2_3'].fillna(0).apply(hour_to_mins) + ab_survey['QID3#1_3'].fillna(0).apply(str_to_int)
-        ab_df['WASON'] = ab_survey['QID6#3_1_1_TEXT'].fillna(BLANK_E)
-        ab_df['WASOT'] = ab_survey['QID6#2_1'].fillna(0).apply(hour_to_mins) + ab_survey['QID6#1_1'].fillna(0).apply(str_to_int)
-        ab_df['EA'] = ab_survey['QID7#3_1'].apply(fill_for_yesno)
-        ab_df['EAT'] = ab_survey['QID7#2_1'].fillna(0).apply(hour_to_mins) + ab_survey['QID7#1_1'].fillna(0).apply(str_to_int)
-        ab_df['SQ'] = ab_survey['QID5'].apply(fill_for_rank)
-        ab_df['REST'] = ab_survey['QID8'].apply(fill_for_rank)
+        tmp_ab_df = tmp_ab_df.apply(process_awaken, axis=1)
 
-        calculated_df = DataFrame()
-        calculated_df['Date'] = ab_df['Date']
-        calculated_df['BT'] = ab_df['BT']
-        calculated_df['LO'] = ab_df['LO']
-        calculated_df['WT'] = ab_df['WT']
-        calculated_df['RT'] = ab_df['RT']
-        calculated_df['TST'] = ab_df['TST']
-        calculated_df['SOL'] = ab_df['SOL']
-        calculated_df['WASOT'] = ab_df['WASOT']
-        calculated_df = calculated_df.apply(process_calculated, axis=1)
+        ab_df['ATTEMPT'] = tmp_ab_df['ATTEMPT']
+        ab_df['BT'] = tmp_ab_df['BT']
+        ab_df['LO'] = tmp_ab_df['LO']
+        ab_df['WT'] = tmp_ab_df['WT']
+        ab_df['RT'] = tmp_ab_df['RT']
+        ab_df['SOL'] = tmp_ab_df['SOL']
+        ab_df['SNZ'] = tmp_ab_df['SNZ']
+        ab_df['TST'] = tmp_ab_df['TST']
+        ab_df['WASON'] = tmp_ab_df['WASON']
+        ab_df['WASOT'] = tmp_ab_df['WASOT']
+        ab_df['EA'] = tmp_ab_df['EA']
+        ab_df['EAT'] = tmp_ab_df['EAT']
+        ab_df['SQ'] = tmp_ab_df['SQ']
+        ab_df['REST'] = tmp_ab_df['REST']
+        ab_df['NOTEWU'] = ab_survey['QID28'].fillna(BLANK_E)
+        ab_df['TIB'] = tmp_ab_df['TIB']
+        ab_df['SE1'] = tmp_ab_df['SE1']
+        ab_df['SE2'] = tmp_ab_df['SE2']
 
-        ab_df['TIB'] = calculated_df['TIB']
-        ab_df['SE1'] = calculated_df['SE1']
-        ab_df['SE2'] = calculated_df['SE2']
+        # test code
+        # ab_df.to_csv('after_bed_survey.csv', index=False)
+
         # Process MULT
         ab_df['MULT'] = self.process_mult(ab_df)
 
@@ -461,11 +530,17 @@ class SurveyParser(object):
         else:
             tmp_df['SMED3T'] = smed3t[1]
 
-        note = to_combined_df['NOTE'].fillna('').values
-        if note[0] != '':
-            tmp_df['NOTE'] = note[0]
+        notebb = to_combined_df['NOTEBB'].fillna('').values
+        if notebb[0] != '':
+            tmp_df['NOTEBB'] = notebb[0]
         else:
-            tmp_df['NOTE'] = note[1]
+            tmp_df['NOTEBB'] = notebb[1]
+
+        attempt = to_combined_df['ATTEMPT'].fillna('').values
+        if attempt[0] != '':
+            tmp_df['ATTEMPT'] = attempt[0]
+        else:
+            tmp_df['ATTEMPT'] = attempt[1]
 
         bt = to_combined_df['BT'].fillna('').values
         if bt[0] != '':
@@ -544,6 +619,12 @@ class SurveyParser(object):
             tmp_df['REST'] = rest[0]
         else:
             tmp_df['REST'] = rest[1]
+
+        notewu = to_combined_df['NOTEWU'].fillna('').values
+        if notewu[0] != '':
+            tmp_df['NOTEWU'] = notewu[0]
+        else:
+            tmp_df['NOTEWU'] = notewu[1]
 
         tib = to_combined_df['TIB'].fillna('').values
         if tib[0] != '':

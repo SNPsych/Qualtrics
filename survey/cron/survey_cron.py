@@ -23,7 +23,13 @@ def survey_rest_call_job():
     # print('-------------> Finished, took %.2f sec' % (end_tm - start_tm))
 
     in_file = downloand_file_name
-    out_file = SURVEY_OUTPUT_DIR + '/' + SURVEY_FILE_PREFIX + '_sleep_diary_' + stm + '.csv'
+
+    out_file = SURVEY_DOWNLOADS_DIR + '/' + SURVEY_FILE_PREFIX + '_sleep_diary_' + stm + '.csv'
+
+    # out_file = SURVEY_OUTPUT_DIR + '/' + SURVEY_FILE_PREFIX + '_sleep_diary_' + stm + '.csv'
     surveyParser = SurveyParser(in_file, out_file)
     surveyParser.parse_csv()
     surveyParser.create_csv()
+
+
+survey_rest_call_job()

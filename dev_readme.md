@@ -20,3 +20,5 @@ def my_scheduled_job():
 CRONJOBS = [
     ('*/5 * * * *', 'myproject.myapp.cron.my_scheduled_job')
 ]
+
+Please see settings for more details

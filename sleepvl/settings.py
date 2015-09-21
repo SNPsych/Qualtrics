@@ -117,7 +117,7 @@ REST_API_PARAMS = {
 
 # Survey temp downloads directory
 SURVEY_DOWNLOADS_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
-SURVEY_OUTPUT_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
+SURVEY_OUTPUT_DIR = '/srv/survey'
 SURVEY_FILE_PREFIX = 'mon'
 
 # Static files (CSS, JavaScript, Images)
