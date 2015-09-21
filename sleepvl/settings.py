@@ -66,7 +66,7 @@ DATABASES = {
         'NAME': 'sleepvl',  # change to correct database name.
         'USER': 'mercdev',  # change to correct user name
         'PASSWORD': 'merc2dev',  # change to correct password
-        'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'HOST': '127.0.0.1',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '5432',  # Set to empty string for default.
     }
 }
