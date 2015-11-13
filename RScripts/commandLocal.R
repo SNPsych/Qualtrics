@@ -70,11 +70,10 @@ if (length(commandArgs(1)) > 0 && file.exists(INPUT_CSV)) {
       output_file = paste0(output_path, ID , "-" , Sys.Date(), ".html")
     )
     
-    #Uncomment this block for pdf output 
-    #render(
-    #  "DiaryReportGenerator.Rmd", output_format = "pdf_document",
-    #  output_file = paste0(output_path, ID , "-" , Sys.Date(), ".pdf")
-    #)
+    render(
+      "DiaryReportGenerator.Rmd", output_format = "pdf_document",
+      output_file = paste0(output_path, ID , "-" , Sys.Date(), ".pdf")
+    )
   }
   
 } else {
