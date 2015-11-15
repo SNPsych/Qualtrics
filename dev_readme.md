@@ -22,3 +22,17 @@ CRONJOBS = [
 ]
 
 Please see settings for more details
+
+# github reference at https://github.com/kraiz/django-crontab
+
+# To add all defined jobs from CRONJOBS to crontab (of the user which you are running this command with):
+
+python manage.py crontab add
+
+# show current active jobs of this project:
+
+python manage.py crontab show
+
+# removing all defined jobs is straight forward:
+
+python manage.py crontab remove
