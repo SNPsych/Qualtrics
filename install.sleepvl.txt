@@ -165,6 +165,15 @@ User ec2-user
 # /var/log/httpd -- wsgi.17881.0.1.sock
 
 
+R libs:
+# https://cran.r-project.org/index.html
+
+yum install R
+
+
+# install pandoc
+
+yum install pandoc
 
 
 

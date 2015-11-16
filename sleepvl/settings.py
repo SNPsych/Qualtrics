@@ -95,8 +95,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+# CRONJOBS = [
+#     ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /dev/null')
+# ]
+
 CRONJOBS = [
-    ('*/10 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /dev/null')
+    ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /srv/log/cron_survey.log')
 ]
 
 # Survey rest api settings
@@ -119,6 +123,11 @@ REST_API_PARAMS = {
 SURVEY_DOWNLOADS_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
 SURVEY_OUTPUT_DIR = '/srv/survey'
 SURVEY_FILE_PREFIX = 'mon'
+SURVEY_REPORT_DIR = '/srv/reports'
+RSCRIPTS_PATH = os.path.join(BASE_DIR, 'r_scripts')
+PANDOC_PATH = '/usr/local/bin'
+TEX_PATH = '/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin'
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..', 'static'))

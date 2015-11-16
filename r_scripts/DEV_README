@@ -1,0 +1,15 @@
+Make sure R, pandoc and a tex distribution is installed before running this script
+
+The command for generating reports from the HTTP source is:
+
+SLEEPVL_LOGIN=<username>:<password> Rscript CMD commandHTTP.r
+
+
+
+The command for generating reports from a local csv is in the format
+"Rscript commandLocal.R <path to input csv>"
+
+e.g:
+Rscript commandLocal.R "Data/latest.csv"
+
+
