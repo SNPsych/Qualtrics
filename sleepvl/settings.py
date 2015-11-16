@@ -124,9 +124,9 @@ SURVEY_DOWNLOADS_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
 SURVEY_OUTPUT_DIR = '/srv/survey'
 SURVEY_FILE_PREFIX = 'mon'
 SURVEY_REPORT_DIR = '/srv/reports'
-RSCRIPTS_PATH = os.path.join(BASE_DIR, 'r_scripts')
-PANDOC_PATH = '/usr/local/bin'
-TEX_PATH = '/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin'
+RSCRIPTS_COMMAND_PATH = os.path.join(BASE_DIR, 'r_scripts')
+R_PATH = '/usr/local/bin'
+R_ENV_PATH = 'PATH="$PATH:/usr/local/bin:/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin"'
 
 
 # Static files (CSS, JavaScript, Images)
