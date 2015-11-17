@@ -64,14 +64,18 @@ if (length(commandArgs(1)) > 0 && file.exists(INPUT_CSV)) {
     if (!dir.exists(output_path)) {
       dir.create(output_path)
     }
-    
+
+    # make a html file
+    # make sure the DiaryReportGenerator.rmd in right location
     render(
-      "/Users/simonyu/MyDev/devworkspace/sleepvl/RScripts/DiaryReportGenerator.Rmd", output_format = "html_document",
+      "/home/ec2-user/sleepvl_demo/sleepvl/r_scripts/DiaryReportGenerator.rmd", output_format = "html_document",
       output_file = paste0(output_path, ID , "-" , Sys.Date(), ".html")
     )
-    
+
+    # make a pdf file
+    # make sure the DiaryReportGenerator.rmd in right location
     render(
-      "/Users/simonyu/MyDev/devworkspace/sleepvl/RScripts/DiaryReportGenerator.Rmd", output_format = "pdf_document",
+      "/home/ec2-user/sleepvl_demo/sleepvl/r_scripts/DiaryReportGenerator.rmd", output_format = "pdf_document",
       output_file = paste0(output_path, ID , "-" , Sys.Date(), ".pdf")
     )
   }

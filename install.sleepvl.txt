@@ -175,8 +175,53 @@ yum install R
 
 yum install pandoc
 
+https://petersen.fedorapeople.org/pandoc-standalone/README.html
+
+$ sudo wget http://repos.fedorapeople.org/repos/petersen/ghc-7.4.2/epel-ghc-7.4.2.repo -P /etc/yum.repos.d
+$ sudo wget http://petersen.fedorapeople.org/pandoc-standalone/pandoc-standalone.repo -P /etc/yum.repos.d
+$ sudo yum install yum-utils      # if you don't have yum-builddep
+$ sudo yum-builddep ~/rpmbuild/SPECS/pandoc.spec
+$ cabal update    # skip if run recently
+$ rpm -iv http://petersen.fedorapeople.org/pandoc-standalone/epel-5/SRPMS/pandoc-1.12.3.1-4.src.rpm
+$ rpmbuild -bb ~/rpmbuild/SPECS/pandoc.spec
+
+#ifxetex.sty not found problem:
+# found the file at https://www.ctan.org/tex-archive/macros/generic/ifxetex?lang=en
+in root user:
+
+wget http://mirrors.ctan.org/macros/generic/ifxetex/ifxetex.tex
+
+# run:
+
+pdflatex ifxetex.tex
+
+# it will create a ifxetex.sty file. copy this file into: /usr/share/texmf/tex/generic/oberdiek/ directory
 
 
+#not found problem
+
+wget http://www.ctan.org/tex-archive/macros/latex/contrib/oberdiek/ifluatex.dtx
+wget http://mirrors.ctan.org/macros/latex/contrib/framed.zip
+
+Turning first to ifluatex, we begin by by unpacking the .dtx bundle. This is accomplished with a tex command:
 
 
+tex ifluatex.dtx
 
+Several files spill out into your Home directory. You care only about ifluatex.sty. Copy it as follows:
+
+sudo cp ifluatex.sty /usr/share/texmf/tex/generic/oberdiek
+
+As for the framed package, you must first unzip the downloaded file into a directory:
+
+
+mkdir framed
+unzip framed.zip -d framed
+
+Now copy the framed directory as follows:
+
+sudo cp -rf framed /usr/share/texmf/tex/latex
+
+Finally, you need to make tex aware of the existence of these new packages with texhash:
+
+sudo texhash

@@ -95,13 +95,14 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CRONJOBS = [
-#     ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /dev/null')
-# ]
 
 CRONJOBS = [
-    ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /srv/log/cron_survey.log')
+    ('30 15 * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /dev/null')
 ]
+
+# CRONJOBS = [
+#     ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /srv/reports/cron_survey.log')
+# ]
 
 # Survey rest api settings
 REST_SURVEY_API_URL = 'https://survey.qualtrics.com//WRAPI/ControlPanel/api.php'
@@ -125,8 +126,14 @@ SURVEY_OUTPUT_DIR = '/srv/survey'
 SURVEY_FILE_PREFIX = 'mon'
 SURVEY_REPORT_DIR = '/srv/reports'
 RSCRIPTS_COMMAND_PATH = os.path.join(BASE_DIR, 'r_scripts')
-R_PATH = '/usr/local/bin'
-R_ENV_PATH = 'PATH="$PATH:/usr/local/bin:/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin"'
+
+# For Linux CentOS 6
+R_PATH = '/usr/bin'
+R_ENV_PATH = 'PATH="$PATH:/usr/bin"'
+
+# For Max OS
+# R_PATH = '/usr/local/bin'
+# R_ENV_PATH = 'PATH="$PATH:/usr/local/bin:/Library/TeX/Distributions/.DefaultTeX/Contents/Programs/texbin"'
 
 
 # Static files (CSS, JavaScript, Images)
