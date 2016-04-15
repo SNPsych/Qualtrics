@@ -405,6 +405,11 @@ class SurveyParser(object):
             mult = row['MULT']
             key = '{}'.format(user_id) + '{}'.format(date) + '{}'.format(mult)
             found_index = self.get_survey_data_from_dict(key)
+            # TODO: remove this temporary solution
+            if user_id == '1504':
+                print('-- Removed the USER ID 1504 Record temporarily due to generate pdf error in R')
+                self.survey_new_csv.drop([index], inplace=True)
+
             if found_index is None:
                 self.set_survey_data_in_dict(key, index)
             else:
