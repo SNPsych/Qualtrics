@@ -228,6 +228,15 @@ class SurveyParser(object):
         self.survey_new_csv = DataFrame()
         self.survey_tmp_dict = {}
 
+    def get_survey_data_from_dict(self, key):
+        return self.survey_tmp_dict.get(key)
+
+    def set_survey_data_in_dict(self, key, value):
+        self.survey_tmp_dict[key] = value
+
+    def clean_survey_data_dict(self):
+        self.survey_tmp_dict.clear()
+
     def parse_csv(self):
         # Read the csv file, and skip the first row as it's a long string label name
         survey_data = pd.read_csv(self.in_filename)[1:]
@@ -386,29 +395,33 @@ class SurveyParser(object):
 
         # sorting it first
         self.survey_new_csv = self.survey_new_csv.sort(['User', 'Date'], ascending=[1, 1])
-        # combine rows based on user date and mult
+
+        # the combined_dulicated_dfs will hold the combined duplicated records
+        combined_duplicated_dfs = []
+
         for index, row in self.survey_new_csv.iterrows():
             user_id = row['User']
             date = row['Date']
             mult = row['MULT']
-
             key = '{}'.format(user_id) + '{}'.format(date) + '{}'.format(mult)
-
-            found = self.get_survey_data_from_dict(key)
-            if found is None:
+            found_index = self.get_survey_data_from_dict(key)
+            if found_index is None:
                 self.set_survey_data_in_dict(key, index)
             else:
-                duplicated_df = DataFrame(self.survey_new_csv, index=[index, found])
-                # print('------- printing duplicated ---- {}'.format(duplicated))
-                self.survey_new_csv.drop([index, found], inplace=True)
+                duplicated_df = DataFrame(self.survey_new_csv, index=[found_index, index])
+                # print('------ duplicated df: {}'.format(duplicated_df))
+                # we drop these duplicated df recordes
+                self.survey_new_csv.drop([found_index, index], inplace=True)
 
-                new_combined_df = self.combine_rows(duplicated_df)
-                # get the first row. actually there is only one row in the new_combined_df
-                s = new_combined_df.xs(0)
-                # set last_valid_index of survery_new_csv +1 as the index for new_combined_df
-                s.name = self.survey_new_csv.last_valid_index() + 1
-                # append it to the end
-                self.survey_new_csv = self.survey_new_csv.append(s)
+                # combines these two duplicated dfs into one
+                combined_df = self.combine_rows(duplicated_df)
+                # print('------ combined df: {}'.format(combined_df))
+                #  append this into combined_duplicated_dfs list
+                combined_duplicated_dfs.append(combined_df)
+        # concat these combined duplicated df list
+        all_duplicated = pd.concat(combined_duplicated_dfs)
+        # append it into survey new csv file
+        self.survey_new_csv = self.survey_new_csv.append(all_duplicated, ignore_index=True)
 
     def create_csv(self):
         """
@@ -418,17 +431,8 @@ class SurveyParser(object):
         self.survey_new_csv.to_csv(self.out_filename, index=False)
         print('--- Finished to create a new csv file.')
 
-    def get_survey_data_from_dict(self, key):
-        return self.survey_tmp_dict.get(key)
-
-    def set_survey_data_in_dict(self, key, value):
-        self.survey_tmp_dict[key] = value
-
-    def clean_survey_tmp_dict(self):
-        self.survey_tmp_dict.clear()
-
     def process_mult(self, survey_df):
-        self.clean_survey_tmp_dict()
+        self.clean_survey_data_dict()
 
         mult_list = []
         index_list = []

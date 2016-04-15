@@ -5,3 +5,4 @@ survey/local/local_settings.py
 *.coverage
 survey/testing/reporter/*.xml
 tmp_downloads/*.csv
+.idea/
