@@ -103,6 +103,31 @@ Alias /survey /srv/survey
 </Location>
 
 
+<Location /latest>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "SleepVL Survey Data Portal"
+        AuthBasicProvider ldap
+        AuthzLDAPAuthoritative on
+        AuthLDAPURL "ldap://directory.monash.edu:389/o=Monash University,c=AU?uid?sub?(objectClass=*)"
+        #AuthLDAPBindDN "o=Monash University,c=AU"
+        Require ldap-user xiyu sbarney beib
+        Require valid-user
+</Location>
+
+<Location /reports>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "SleepVL Survey Data Portal"
+        AuthBasicProvider ldap
+        AuthzLDAPAuthoritative on
+        AuthLDAPURL "ldap://directory.monash.edu:389/o=Monash University,c=AU?uid?sub?(objectClass=*)"
+        #AuthLDAPBindDN "o=Monash University,c=AU"
+        Require ldap-user xiyu sbarney beib
+        Require valid-user
+</Location>
+
+
 # Remove and re-install mod_wsgi
 
 yum remove mod_wsgi
@@ -225,3 +250,15 @@ sudo cp -rf framed /usr/share/texmf/tex/latex
 Finally, you need to make tex aware of the existence of these new packages with texhash:
 
 sudo texhash
+
+
+# Host the latest reports:
+
+1. create directory called latest
+# mkdir latest
+
+2. copy the css and images folders which are under tpl directory into latest folder
+# cp -Rf css latest/
+# cp -Rf images latest/
+
+3. create sub directories called pdf and html

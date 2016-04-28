@@ -122,9 +122,11 @@ REST_API_PARAMS = {
 
 # Survey temp downloads directory
 SURVEY_DOWNLOADS_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
+INDEX_HTML_TPL_DIR = os.path.join(BASE_DIR, 'tpl')
 SURVEY_OUTPUT_DIR = '/srv/survey'
 SURVEY_FILE_PREFIX = 'mon'
 SURVEY_REPORT_DIR = '/srv/reports'
+SURVEY_LATEST_REPORT_DIR = '/srv/latest'
 RSCRIPTS_COMMAND_PATH = os.path.join(BASE_DIR, 'r_scripts')
 
 # For Linux CentOS 6

@@ -1,9 +1,18 @@
 __author__ = 'simonyu'
 
 from datetime import datetime, timedelta
+from io import StringIO
+import uuid
+import shutil
+import os
 
 import pandas as pd
 from pandas.core.frame import DataFrame
+from mako.template import Template
+from mako.runtime import Context
+import simplejson
+
+from sleepvl.settings import BASE_DIR
 
 BLANK_E = '.E'
 BLANK_B = '.B'
@@ -227,6 +236,13 @@ class SurveyParser(object):
         self.out_filename = out_filename
         self.survey_new_csv = DataFrame()
         self.survey_tmp_dict = {}
+        self.patient_ids = []
+        # check the id store exists
+        if os.path.isfile(BASE_DIR + '/id_store/idstore.json'):
+            store_json = open(BASE_DIR + '/id_store/idstore.json')
+            self.patient_store = simplejson.load(store_json)
+        else:
+            self.patient_store = []  # no id store exists. just create empty patient_store
 
     def get_survey_data_from_dict(self, key):
         return self.survey_tmp_dict.get(key)
@@ -398,6 +414,8 @@ class SurveyParser(object):
 
         # the combined_dulicated_dfs will hold the combined duplicated records
         combined_duplicated_dfs = []
+        #  get all unique patient ids
+        self.patient_ids = self.survey_new_csv.User.unique().tolist()
 
         for index, row in self.survey_new_csv.iterrows():
             user_id = row['User']
@@ -653,3 +671,57 @@ class SurveyParser(object):
         else:
             tmp_df['SE2'] = se2[1]
         return tmp_df
+
+    def create_html(self, tpl_file, dest_file):
+
+        for pid in self.patient_ids:
+            patient = {}
+            patientids = self.get_patient_by_id(pid)
+            if len(patientids) == 0:
+                uuid = self.generate_uuid()
+                patient['id'] = pid
+                patient['uuid'] = uuid
+                self.patient_store.append(patient)
+        with open(BASE_DIR + '/id_store/idstore.json', 'w') as f:
+            simplejson.dump(self.patient_store, f)
+
+        # create a latest report index html file
+        index_template = Template(filename=tpl_file)
+        output = StringIO()
+        ctx = Context(output, patients=self.patient_store)
+        index_template.render_context(ctx)
+        with open(dest_file, 'wt') as f:
+            f.write(output.getvalue())
+        # close object and discard memory buffer --
+        # .getvalue() will now raise an exception.
+        output.close()
+
+    def get_patient_by_id(self, patient_id):
+        return [patient for patient in self.patient_store if patient['id'] == patient_id]
+
+    def generate_uuid(self):
+        return uuid.uuid4().__str__()
+
+    def copy_latest_reports(self, reports_src_dir, latest_report_dir, current_date):
+        for patient in self.patient_store:
+            patient_id = patient['id']
+            patient_uuid = patient['uuid']
+            pdf_file = os.path.join(reports_src_dir, patient_id, (patient_id + '-' + current_date + '.pdf'))
+            try:
+                dest_pdf_dir = os.path.join(latest_report_dir, 'reports', 'pdf')
+                dest_pdf_file = os.path.join(dest_pdf_dir, (patient_id + '-' + current_date + '.pdf'))
+                dest_pdf_new_file = os.path.join(dest_pdf_dir, (patient_uuid + '.pdf'))
+                shutil.copy(pdf_file, dest_pdf_dir)
+                os.rename(dest_pdf_file, dest_pdf_new_file)
+            except Exception as ex:
+                print('Copy pdf report - {} failed, {}'.format(pdf_file, ex))
+
+            html_file = os.path.join(reports_src_dir, patient_id, (patient_id + '-' + current_date + '.html'))
+            try:
+                dest_html_dir = os.path.join(latest_report_dir, 'reports', 'html')
+                dest_html_file = os.path.join(dest_html_dir, (patient_id + '-' + current_date + '.html'))
+                dest_html_new_file = os.path.join(dest_html_dir, (patient_uuid + '.html'))
+                shutil.copy(html_file, dest_html_dir)
+                os.rename(dest_html_file, dest_html_new_file)
+            except Exception as ex:
+                print('Copy html report - {} failed, {}'.format(html_file, ex))

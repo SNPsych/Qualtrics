@@ -115,7 +115,7 @@ fig.duration <- ggplot(d[User == ID], aes(Date)) +
 
 **Date of report:** `r format(Sys.time(), "%a %d %b %Y")`
 
-**ID:** `r ID`
+<!-- **ID:** `r ID` -->
 
 ## Summary
 
