@@ -13,6 +13,7 @@ from mako.runtime import Context
 import simplejson
 
 from sleepvl.settings import BASE_DIR
+import sys
 
 BLANK_E = '.E'
 BLANK_B = '.B'
@@ -197,7 +198,7 @@ def process_awaken(x):
         # parse the EA
         ea = x['EA']
         if ea == 'Yes':
-            x['EA'] = 1;
+            x['EA'] = 1
         elif ea == 'No':
             x['EA'] = 0
         else:
@@ -237,12 +238,43 @@ class SurveyParser(object):
         self.survey_new_csv = DataFrame()
         self.survey_tmp_dict = {}
         self.patient_ids = []
+        self.survey_patients = []
+        self._init_load_all_patient_ids()
+
+    def _init_load_all_patient_ids(self):
+        base_patient_store_dir = os.path.join(BASE_DIR, 'id_store')
+        patient_id_xls_file = os.path.join(base_patient_store_dir, 'IDs.xlsx')
+        # load the excel file
+        id_xls = pd.ExcelFile(patient_id_xls_file)
+        # parse the excel file by pandas
+        id_dataframe = id_xls.parse(id_xls.sheet_names[0])
+        # get a list of patient ids
+        patient_id_list = id_dataframe.ID.unique().tolist()
+
+        # create empty list for all patients to store patient id json
+        self.all_patient_id_json_store = []
         # check the id store exists
         if os.path.isfile(BASE_DIR + '/id_store/idstore.json'):
             store_json = open(BASE_DIR + '/id_store/idstore.json')
-            self.patient_store = simplejson.load(store_json)
-        else:
-            self.patient_store = []  # no id store exists. just create empty patient_store
+            self.all_patient_id_json_store = simplejson.load(store_json)
+
+
+        for pid in patient_id_list:
+            patient = {}
+            patientids = self.get_patient_by_id(str(pid))
+            # if not found
+            if len(patientids) == 0:
+                uuid = self.generate_uuid()
+                patient['id'] = str(pid)
+                patient['uuid'] = uuid
+                self.all_patient_id_json_store.append(patient)
+
+        # save all patient json id into json file
+        with open(os.path.join(base_patient_store_dir, 'idstore.json'), 'w') as f:
+            simplejson.dump(self.all_patient_id_json_store, f)
+
+    def get_patient_by_id(self, patient_id):
+        return [patient for patient in self.all_patient_id_json_store if patient['id'] == patient_id]
 
     def get_survey_data_from_dict(self, key):
         return self.survey_tmp_dict.get(key)
@@ -672,43 +704,62 @@ class SurveyParser(object):
             tmp_df['SE2'] = se2[1]
         return tmp_df
 
-    def create_html(self, tpl_file, dest_file):
+    def create_html(self, tpl_file, dest_dir):
+        new_patient_id_added = False
 
         for pid in self.patient_ids:
             patient = {}
-            patientids = self.get_patient_by_id(pid)
+            patientids = self.get_patient_by_id(str(pid))
             if len(patientids) == 0:
                 uuid = self.generate_uuid()
                 patient['id'] = pid
                 patient['uuid'] = uuid
-                self.patient_store.append(patient)
-        with open(BASE_DIR + '/id_store/idstore.json', 'w') as f:
-            simplejson.dump(self.patient_store, f)
+                self.all_patient_id_json_store.append(patient)
+                self.survey_patients.append(patient)
+                new_patient_id_added = True
+            else:
+                self.survey_patients.append(patientids[0])
+        # if added a new patient. then we need to update the idstore.json
+        if new_patient_id_added:
+              # save all patient json id into json file
+            with open(os.path.join(BASE_DIR, 'id_store', 'idstore.json'), 'w') as f:
+                simplejson.dump(self.all_patient_id_json_store, f)
+        else:
+            print('no new patient id added')
 
         # create a latest report index html file
         index_template = Template(filename=tpl_file)
         output = StringIO()
-        ctx = Context(output, patients=self.patient_store)
+        ctx = Context(output, patients=self.survey_patients)
         index_template.render_context(ctx)
-        with open(dest_file, 'wt') as f:
+        index_file = os.path.join(dest_dir, 'index.html')
+        with open(index_file, 'wt') as f:
             f.write(output.getvalue())
         # close object and discard memory buffer --
         # .getvalue() will now raise an exception.
         output.close()
 
-    def get_patient_by_id(self, patient_id):
-        return [patient for patient in self.patient_store if patient['id'] == patient_id]
+        # Create a Pandas dataframe from some data.
+        df = DataFrame.from_dict(self.all_patient_id_json_store)
+        excel_file = os.path.join(dest_dir, 'IDs.xlsx')
+        # Create a Pandas Excel writer using XlsxWriter as the engine.
+        excel_writer = pd.ExcelWriter(excel_file, engine='xlsxwriter')
+        # Convert the dataframe to an XlsxWriter Excel object.
+        df.to_excel(excel_writer, index=False, sheet_name='Diary')
+        # Close the Pandas Excel writer and output the Excel file.
+        excel_writer.save()
+
 
     def generate_uuid(self):
         return uuid.uuid4().__str__()
 
     def copy_latest_reports(self, reports_src_dir, latest_report_dir, current_date):
-        for patient in self.patient_store:
+        for patient in self.survey_patients:
             patient_id = patient['id']
             patient_uuid = patient['uuid']
             pdf_file = os.path.join(reports_src_dir, patient_id, (patient_id + '-' + current_date + '.pdf'))
             try:
-                dest_pdf_dir = os.path.join(latest_report_dir, 'reports', 'pdf')
+                dest_pdf_dir = os.path.join(latest_report_dir, 'pdf')
                 dest_pdf_file = os.path.join(dest_pdf_dir, (patient_id + '-' + current_date + '.pdf'))
                 dest_pdf_new_file = os.path.join(dest_pdf_dir, (patient_uuid + '.pdf'))
                 shutil.copy(pdf_file, dest_pdf_dir)
@@ -718,7 +769,7 @@ class SurveyParser(object):
 
             html_file = os.path.join(reports_src_dir, patient_id, (patient_id + '-' + current_date + '.html'))
             try:
-                dest_html_dir = os.path.join(latest_report_dir, 'reports', 'html')
+                dest_html_dir = os.path.join(latest_report_dir, 'html')
                 dest_html_file = os.path.join(dest_html_dir, (patient_id + '-' + current_date + '.html'))
                 dest_html_new_file = os.path.join(dest_html_dir, (patient_uuid + '.html'))
                 shutil.copy(html_file, dest_html_dir)

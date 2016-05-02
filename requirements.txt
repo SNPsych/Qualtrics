@@ -30,3 +30,5 @@ requests==2.7.0
 six==1.9.0
 simplejson==3.8.2
 Mako==1.0.4
+xlrd==0.9.4
+XlsxWriter=0.8.6

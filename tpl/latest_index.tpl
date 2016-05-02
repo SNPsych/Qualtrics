@@ -28,7 +28,7 @@
                 ${pid['id']}
             </td>
             <td>
-                <a href="reports/pdf/${pid['uuid']}.pdf"> PDF </a> | <a href="reports/html/${pid['uuid']}.html"> HTML </a>
+                <a href="../latest_reports/pdf/${pid['uuid']}.pdf"> PDF </a> | <a href="../latest_reports/html/${pid['uuid']}.html"> HTML </a>
              </td>
         </tr>
         % endfor
@@ -37,6 +37,8 @@
     <br/>
     <br/>
     <br/>
+    <br/>
+    Download all IDs, please click <a href="IDs.xlsx"> here </a>
     <br/>
 </div>
 

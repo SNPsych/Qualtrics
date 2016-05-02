@@ -254,11 +254,14 @@ sudo texhash
 
 # Host the latest reports:
 
-1. create directory called latest
+1. create directory called latest and latest_reports directories
 # mkdir latest
+# mkdir latest_reports
 
 2. copy the css and images folders which are under tpl directory into latest folder
 # cp -Rf css latest/
 # cp -Rf images latest/
 
-3. create sub directories called pdf and html
+3. create sub directories called pdf and html under latest_reports folder
+# mkdir pdf
+# mkdir html
