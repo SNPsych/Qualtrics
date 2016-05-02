@@ -740,6 +740,7 @@ class SurveyParser(object):
 
         # Create a Pandas dataframe from some data.
         df = DataFrame.from_dict(self.all_patient_id_json_store)
+        df = df.sort(['id', 'uuid'], ascending=[1, 1])
         excel_file = os.path.join(dest_dir, 'IDs.xlsx')
         # Create a Pandas Excel writer using XlsxWriter as the engine.
         excel_writer = pd.ExcelWriter(excel_file, engine='xlsxwriter')
