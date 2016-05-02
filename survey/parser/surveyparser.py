@@ -13,7 +13,6 @@ from mako.runtime import Context
 import simplejson
 
 from sleepvl.settings import BASE_DIR
-import sys
 
 BLANK_E = '.E'
 BLANK_B = '.B'

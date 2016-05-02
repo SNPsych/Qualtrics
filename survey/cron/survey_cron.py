@@ -46,5 +46,3 @@ def survey_rest_call_job():
     # copy the latest reports into latest reports directory
     today = datetime.datetime.fromtimestamp(start_tm).strftime('%Y-%m-%d')
     surveyParser.copy_latest_reports(SURVEY_REPORT_DIR, SURVEY_LATEST_REPORT_DIR, today)
-
-survey_rest_call_job()
