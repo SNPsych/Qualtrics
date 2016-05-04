@@ -87,8 +87,10 @@ chkconfig add httpd
 
 LoadModule authz_ldap_module modules/mod_authz_ldap.so
 
-Alias /survey /srv/survey
-
+Alias /survey /srv/sleepvl/survey
+Alias /latest /srv/sleepvl/latest
+Alias /reports /srv/sleepvl/reports
+Alias /latest_reports /srv/sleepvl/latest_reports
 
 <Location /survey>
         Options Indexes FollowSymLinks
@@ -127,6 +129,24 @@ Alias /survey /srv/survey
         Require valid-user
 </Location>
 
+<Location /latest_reports>
+        Options Indexes FollowSymLinks
+        AuthType Basic
+        AuthName "SleepVL Survey Data Portal"
+        AuthBasicProvider ldap
+        AuthzLDAPAuthoritative on
+        AuthLDAPURL "ldap://directory.monash.edu:389/o=Monash University,c=AU?uid?sub?(objectClass=*)"
+        #AuthLDAPBindDN "o=Monash University,c=AU"
+        Require ldap-user xiyu sbarney beib
+        Require valid-user
+</Location>
+
+<Location /latest_reports>
+        Options  FollowSymLinks
+        Allow From All
+        Satisfy Any
+</Location>
+
 
 # Remove and re-install mod_wsgi
 
@@ -155,8 +175,8 @@ yum remove mod_wsgi
 
 LoadModule wsgi_module modules/mod_wsgi.so
 
-Alias /media /home/ec2-user/sleepvl_demo/static
-Alias /static /home/ec2-user/sleepvl_demo/static
+Alias /media /home/ec2-user/sleepvl_prod/static
+Alias /static /home/ec2-user/sleepvl_prod/static
 
 <Directory /static>
         Order allow,deny
@@ -253,15 +273,16 @@ sudo texhash
 
 
 # Host the latest reports:
+create a directory called sleepvl under /srv
 
-1. create directory called latest and latest_reports directories
+1. create directory called latest and latest_reports directories under /srv/sleepvl
 # mkdir latest
 # mkdir latest_reports
 
 2. copy the css and images folders which are under tpl directory into latest folder
-# cp -Rf css latest/
-# cp -Rf images latest/
+# cp -Rf css /srv/sleepvl/latest/
+# cp -Rf images /srv/sleepvl/latest/
 
-3. create sub directories called pdf and html under latest_reports folder
+3. create sub directories called pdf and html under /srv/sleepvl/latest_reports folder
 # mkdir pdf
 # mkdir html

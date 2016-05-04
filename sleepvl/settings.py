@@ -123,11 +123,11 @@ REST_API_PARAMS = {
 # Survey temp downloads directory
 SURVEY_DOWNLOADS_DIR = os.path.join(BASE_DIR, 'tmp_downloads')
 INDEX_HTML_TPL_DIR = os.path.join(BASE_DIR, 'tpl')
-SURVEY_OUTPUT_DIR = '/srv/survey'
+SURVEY_OUTPUT_DIR = '/srv/sleepvl/survey'
 SURVEY_FILE_PREFIX = 'mon'
-SURVEY_REPORT_DIR = '/srv/reports'
-SURVEY_LATEST_REPORT_DIR = '/srv/latest_reports'
-SURVEY_LATEST_REPORT_INDEX_DIR = '/srv/latest'
+SURVEY_REPORT_DIR = '/srv/sleepvl/reports'
+SURVEY_LATEST_REPORT_DIR = '/srv/sleepvl/latest_reports'
+SURVEY_LATEST_REPORT_INDEX_DIR = '/srv/sleepvl/latest'
 
 RSCRIPTS_COMMAND_PATH = os.path.join(BASE_DIR, 'r_scripts')
 
