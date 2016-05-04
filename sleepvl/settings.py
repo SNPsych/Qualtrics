@@ -101,7 +101,7 @@ CRONJOBS = [
 ]
 
 # CRONJOBS = [
-#     ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /srv/reports/cron_survey.log')
+#     ('*/3 * * * *', 'survey.cron.survey_cron.survey_rest_call_job', '&> /srv/sleepvl/reports/cron_survey.log')
 # ]
 
 # Survey rest api settings
