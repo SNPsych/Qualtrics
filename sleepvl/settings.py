@@ -128,6 +128,7 @@ SURVEY_FILE_PREFIX = 'mon'
 SURVEY_REPORT_DIR = '/srv/sleepvl/reports'
 SURVEY_LATEST_REPORT_DIR = '/srv/sleepvl/latest_reports'
 SURVEY_LATEST_REPORT_INDEX_DIR = '/srv/sleepvl/latest'
+SURVEY_ENCRYPTED_REPORT_DIR = '/srv/sleepvl/encrypted_reports'
 
 RSCRIPTS_COMMAND_PATH = os.path.join(BASE_DIR, 'r_scripts')
 

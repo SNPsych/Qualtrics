@@ -18,7 +18,8 @@
         <thead>
         <tr>
             <th>Patient ID</th>
-            <th>Reports</th>
+            <th> Reports </th>
+            <th> Encrypted Reports </th>
         </tr>
         </thead>
         <tbody>
@@ -29,6 +30,9 @@
             </td>
             <td>
                 <a href="../latest_reports/pdf/${pid['uuid']}.pdf"> PDF </a> | <a href="../latest_reports/html/${pid['uuid']}.html"> HTML </a>
+             </td>
+             <td>
+                <a href="../encrypted_reports/${pid['uuid']}.pdf"> Encrypted PDF </a>
              </td>
         </tr>
         % endfor

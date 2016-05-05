@@ -5,7 +5,8 @@ import logging
 import subprocess
 
 from sleepvl.settings import SURVEY_DOWNLOADS_DIR, SURVEY_OUTPUT_DIR, SURVEY_FILE_PREFIX, REST_SURVEY_API_URL, REST_API_PARAMS, \
-    RSCRIPTS_COMMAND_PATH, R_PATH, R_ENV_PATH, INDEX_HTML_TPL_DIR, SURVEY_REPORT_DIR, SURVEY_LATEST_REPORT_DIR, SURVEY_LATEST_REPORT_INDEX_DIR
+    RSCRIPTS_COMMAND_PATH, R_PATH, R_ENV_PATH, INDEX_HTML_TPL_DIR, SURVEY_REPORT_DIR, SURVEY_LATEST_REPORT_DIR, SURVEY_LATEST_REPORT_INDEX_DIR, \
+    SURVEY_ENCRYPTED_REPORT_DIR
 from survey.parser.surveyparser import SurveyParser
 
 
@@ -45,4 +46,4 @@ def survey_rest_call_job():
 
     # copy the latest reports into latest reports directory
     today = datetime.datetime.fromtimestamp(start_tm).strftime('%Y-%m-%d')
-    surveyParser.copy_latest_reports(SURVEY_REPORT_DIR, SURVEY_LATEST_REPORT_DIR, today)
+    surveyParser.gen_latest_reports(SURVEY_REPORT_DIR, SURVEY_LATEST_REPORT_DIR, SURVEY_ENCRYPTED_REPORT_DIR, today)

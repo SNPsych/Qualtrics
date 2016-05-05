@@ -2,17 +2,19 @@ __author__ = 'simonyu'
 
 from datetime import datetime, timedelta
 from io import StringIO
-import uuid
 import shutil
 import os
 
 import pandas as pd
 from pandas.core.frame import DataFrame
+
 from mako.template import Template
+
 from mako.runtime import Context
 import simplejson
 
 from sleepvl.settings import BASE_DIR
+from survey.sec import sleepvlsec
 
 BLANK_E = '.E'
 BLANK_B = '.B'
@@ -257,15 +259,15 @@ class SurveyParser(object):
             store_json = open(BASE_DIR + '/id_store/idstore.json')
             self.all_patient_id_json_store = simplejson.load(store_json)
 
-
         for pid in patient_id_list:
             patient = {}
             patientids = self.get_patient_by_id(str(pid))
             # if not found
             if len(patientids) == 0:
-                uuid = self.generate_uuid()
+                uuid = sleepvlsec.gen_uuid()
                 patient['id'] = str(pid)
                 patient['uuid'] = uuid
+                patient['pin'] = sleepvlsec.pwd()
                 self.all_patient_id_json_store.append(patient)
 
         # save all patient json id into json file
@@ -710,9 +712,10 @@ class SurveyParser(object):
             patient = {}
             patientids = self.get_patient_by_id(str(pid))
             if len(patientids) == 0:
-                uuid = self.generate_uuid()
+                uuid = sleepvlsec.gen_uuid()
                 patient['id'] = pid
                 patient['uuid'] = uuid
+                patient['pin'] = sleepvlsec.pwd()
                 self.all_patient_id_json_store.append(patient)
                 self.survey_patients.append(patient)
                 new_patient_id_added = True
@@ -720,7 +723,7 @@ class SurveyParser(object):
                 self.survey_patients.append(patientids[0])
         # if added a new patient. then we need to update the idstore.json
         if new_patient_id_added:
-              # save all patient json id into json file
+            # save all patient json id into json file
             with open(os.path.join(BASE_DIR, 'id_store', 'idstore.json'), 'w') as f:
                 simplejson.dump(self.all_patient_id_json_store, f)
         else:
@@ -740,39 +743,46 @@ class SurveyParser(object):
 
         # Create a Pandas dataframe from some data.
         df = DataFrame.from_dict(self.all_patient_id_json_store)
-        df = df.sort(['id', 'uuid'], ascending=[1, 1])
+        df = df.sort(['id', 'uuid', 'pin'], ascending=[1, 1, 1])
         excel_file = os.path.join(dest_dir, 'IDs.xlsx')
         # Create a Pandas Excel writer using XlsxWriter as the engine.
         excel_writer = pd.ExcelWriter(excel_file, engine='xlsxwriter')
         # Convert the dataframe to an XlsxWriter Excel object.
-        df.to_excel(excel_writer, index=False, sheet_name='Diary')
+        df.to_excel(excel_writer, index=False, sheet_name='Diary', columns=['id', 'uuid', 'pin'])
         # Close the Pandas Excel writer and output the Excel file.
         excel_writer.save()
 
-
-    def generate_uuid(self):
-        return uuid.uuid4().__str__()
-
-    def copy_latest_reports(self, reports_src_dir, latest_report_dir, current_date):
+    def gen_latest_reports(self, reports_src_dir, latest_report_dir, encrypted_report_dir, current_date):
         for patient in self.survey_patients:
+
             patient_id = patient['id']
             patient_uuid = patient['uuid']
-            pdf_file = os.path.join(reports_src_dir, patient_id, (patient_id + '-' + current_date + '.pdf'))
+            patient_pin = patient['pin']
+            pdf_file_name = patient_id + '-' + current_date + '.pdf'
+            html_file_name = patient_id + '-' + current_date + '.html'
+            pdf_file = os.path.join(reports_src_dir, patient_id, pdf_file_name)
             try:
                 dest_pdf_dir = os.path.join(latest_report_dir, 'pdf')
-                dest_pdf_file = os.path.join(dest_pdf_dir, (patient_id + '-' + current_date + '.pdf'))
+                dest_pdf_file = os.path.join(dest_pdf_dir, pdf_file_name)
                 dest_pdf_new_file = os.path.join(dest_pdf_dir, (patient_uuid + '.pdf'))
                 shutil.copy(pdf_file, dest_pdf_dir)
                 os.rename(dest_pdf_file, dest_pdf_new_file)
             except Exception as ex:
                 print('Copy pdf report - {} failed, {}'.format(pdf_file, ex))
 
-            html_file = os.path.join(reports_src_dir, patient_id, (patient_id + '-' + current_date + '.html'))
+            html_file = os.path.join(reports_src_dir, patient_id, html_file_name)
             try:
                 dest_html_dir = os.path.join(latest_report_dir, 'html')
-                dest_html_file = os.path.join(dest_html_dir, (patient_id + '-' + current_date + '.html'))
+                dest_html_file = os.path.join(dest_html_dir, html_file_name)
                 dest_html_new_file = os.path.join(dest_html_dir, (patient_uuid + '.html'))
                 shutil.copy(html_file, dest_html_dir)
                 os.rename(dest_html_file, dest_html_new_file)
             except Exception as ex:
                 print('Copy html report - {} failed, {}'.format(html_file, ex))
+
+            # make an encrypted pdf file
+            try:
+                dest_encrypted_pdf_file = os.path.join(encrypted_report_dir, (patient_uuid + '.pdf'))
+                sleepvlsec.pdf_encrypt(pdf_file, dest_encrypted_pdf_file, patient_pin)
+            except Exception as ex:
+                print('encrypted pdf report - {} failed, {}'.format(pdf_file, ex))
