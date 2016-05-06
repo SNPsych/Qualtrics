@@ -267,7 +267,7 @@ class SurveyParser(object):
                 uuid = sleepvlsec.gen_uuid()
                 patient['id'] = str(pid)
                 patient['uuid'] = uuid
-                patient['pin'] = sleepvlsec.pwd()
+                patient['pin'] = sleepvlsec.digital_pin()
                 self.all_patient_id_json_store.append(patient)
 
         # save all patient json id into json file
@@ -715,7 +715,7 @@ class SurveyParser(object):
                 uuid = sleepvlsec.gen_uuid()
                 patient['id'] = pid
                 patient['uuid'] = uuid
-                patient['pin'] = sleepvlsec.pwd()
+                patient['pin'] = sleepvlsec.digital_pin()
                 self.all_patient_id_json_store.append(patient)
                 self.survey_patients.append(patient)
                 new_patient_id_added = True
