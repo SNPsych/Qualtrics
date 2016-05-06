@@ -38,3 +38,7 @@ def pwd():
 
 def gen_uuid():
     return uuid.uuid4().__str__()
+
+
+def digital_pin():
+    return random.randint(1000, 9999)
