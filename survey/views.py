@@ -11,4 +11,6 @@ def index(request):
 def site_admin(request):
     context_dict = {}
     #return render(request,'sleepvl/site_admin.html', context_dict)
-    return HttpResponse('<H3>Access Denied for {}: Not implemented <H3><BR>'.format(repr(request.user)))
+    msgStr = '<H3>Access Denied for {}: Not implemented <H3><BR>'.format(repr(request.user))
+    print(msgStr)
+    return HttpResponse(msgStr)
