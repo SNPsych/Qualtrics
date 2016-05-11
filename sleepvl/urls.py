@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from survey.views import site_admin, login
+from survey.views import site_admin
 #from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
