@@ -1,8 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from survey.views import site_admin
+from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
+                       url(r'^accounts/login/$', auth_views.login),
                        # index page:
                        url(r'^$', 'survey.views.index', name='index'),
                        # django admin
