@@ -24,5 +24,5 @@ class CustomHeaderMiddleware(RemoteUserMiddleware):
 
     def process_request(self, request):
         pp = pprint.PrettyPrinter(indent=4)
-        pp.print(request.META)
+        pp.pprint(request.META)
         return super(CustomHeaderMiddleware,self).process_request(request)
