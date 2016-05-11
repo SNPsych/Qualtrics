@@ -20,7 +20,6 @@ def site_admin(request):
 from django.contrib.auth.middleware import RemoteUserMiddleware
 
 class CustomHeaderMiddleware(RemoteUserMiddleware):
-    header = 'HTTP_AUTHUSER'
 
     def process_request(self, request):
         pp = pprint.PrettyPrinter(indent=4)
