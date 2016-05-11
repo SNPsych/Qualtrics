@@ -16,6 +16,21 @@ def site_admin(request):
     print(msgStr)
     return HttpResponse(msgStr)
 
+from django.contrib.auth.views import login as auth_login
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.utils.http import is_safe_url
+# additional imports
+
+def login(request, template_name='activity/login.html',
+        redirect_field_name=REDIRECT_FIELD_NAME):
+    if hasattr(request, 'user') and request.user.is_authenticated():
+        redirect_to = request.POST.get(redirect_field_name,
+            request.GET.get(redirect_field_name, ''))
+        #if not is_safe_url(url=redirect_to, host=request.get_host()):
+         #   redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
+        return HttpResponseRedirect(redirect_to)
+    return auth_login(request, template_name = template_name,
+        redirect_field_name = redirect_field_name)
 
 from django.contrib.auth.middleware import RemoteUserMiddleware
 
