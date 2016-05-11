@@ -31,7 +31,9 @@ def login(request, template_name='activity/login.html',
             request.GET.get(redirect_field_name, ''))
         #if not is_safe_url(url=redirect_to, host=request.get_host()):
          #   redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
+        pp.pprint('redirecting to ' + redirect_to)
         return HttpResponseRedirect(redirect_to)
+    pp.pprint('trying login auth_login')
     return auth_login(request, template_name = template_name,
         redirect_field_name = redirect_field_name)
 
