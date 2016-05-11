@@ -23,6 +23,9 @@ from django.utils.http import is_safe_url
 
 def login(request, template_name='activity/login.html',
         redirect_field_name=REDIRECT_FIELD_NAME):
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint('user is ')
+    pp.pprint(request.user)
     if hasattr(request, 'user') and request.user.is_authenticated():
         redirect_to = request.POST.get(redirect_field_name,
             request.GET.get(redirect_field_name, ''))
@@ -37,6 +40,4 @@ from django.contrib.auth.middleware import RemoteUserMiddleware
 class CustomHeaderMiddleware(RemoteUserMiddleware):
 
     def process_request(self, request):
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(request.META)
         return super(CustomHeaderMiddleware,self).process_request(request)
