@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+import pprint
 
 # index home page
 def index(request):
@@ -20,3 +21,8 @@ from django.contrib.auth.middleware import RemoteUserMiddleware
 
 class CustomHeaderMiddleware(RemoteUserMiddleware):
     header = 'HTTP_AUTHUSER'
+
+    def process_request(self, request):
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.print(request.META)
+        return super(CustomHeaderMiddleware,self).process_request(request)
