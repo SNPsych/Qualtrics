@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-#import pprint
+import pprint
 
 # index home page
 def index(request):
@@ -11,9 +11,11 @@ def index(request):
 def site_admin(request):
     context_dict = {}
     #return render(request,'sleepvl/site_admin.html', context_dict)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(request.META)
     msgStr = 'User is authenticated {}'.format(repr(request.user))
     if not request.user.is_authenticated():
-        msgStr = '<H3>Access Denied for {}: Not implemented <H3><BR>'.format(repr(request.user))
+        msgStr = '<H3>Access Denied for {}: <H3><BR>'.format(repr(request.user))
     print(msgStr)
     return HttpResponse(msgStr)
 
