@@ -58,7 +58,7 @@ if (length(commandArgs(1)) > 0 && file.exists(INPUT_CSV)) {
     
     
     # path = "<this directory>/Reports/{ID}/"
-    output_path = paste0("/srv/reports/", ID, "/")
+    output_path = paste0("/srv/sleepvl/reports/", ID, "/")
     
     # make directory if it doesn't exist
     if (!dir.exists(output_path)) {
@@ -68,14 +68,14 @@ if (length(commandArgs(1)) > 0 && file.exists(INPUT_CSV)) {
     # make a html file
     # make sure the DiaryReportGenerator.rmd in right location
     render(
-      "/home/ec2-user/sleepvl_demo/sleepvl/r_scripts/DiaryReportGenerator.rmd", output_format = "html_document",
+      "/home/ec2-user/sleepvl_prod/sleepvl/r_scripts/DiaryReportGenerator.rmd", output_format = "html_document",
       output_file = paste0(output_path, ID , "-" , Sys.Date(), ".html")
     )
 
     # make a pdf file
     # make sure the DiaryReportGenerator.rmd in right location
     render(
-      "/home/ec2-user/sleepvl_demo/sleepvl/r_scripts/DiaryReportGenerator.rmd", output_format = "pdf_document",
+      "/home/ec2-user/sleepvl_prod/sleepvl/r_scripts/DiaryReportGenerator.rmd", output_format = "pdf_document",
       output_file = paste0(output_path, ID , "-" , Sys.Date(), ".pdf")
     )
   }

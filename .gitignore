@@ -7,3 +7,4 @@ survey/testing/reporter/*.xml
 tmp_downloads/*.csv
 .idea/
 id_store/*.json
+r_scripts/*.pdf
