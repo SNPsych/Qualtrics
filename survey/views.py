@@ -14,3 +14,9 @@ def site_admin(request):
     msgStr = '<H3>Access Denied for {}: Not implemented <H3><BR>'.format(repr(request.user))
     print(msgStr)
     return HttpResponse(msgStr)
+
+
+from django.contrib.auth.middleware import RemoteUserMiddleware
+
+class CustomHeaderMiddleware(RemoteUserMiddleware):
+    header = 'HTTP_AUTHUSER'
